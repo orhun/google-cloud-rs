@@ -317,25 +317,25 @@ where
 impl From<ValueType> for Value {
     fn from(value: ValueType) -> Value {
         match value {
-            ValueType::NullValue(_) => unreachable!(),
-            ValueType::BooleanValue(val) => Value::BooleanValue(val),
-            ValueType::IntegerValue(val) => Value::IntegerValue(val),
-            ValueType::DoubleValue(val) => Value::DoubleValue(val),
-            ValueType::TimestampValue(val) => {
+            ValueType::Null(_) => unreachable!(),
+            ValueType::Boolean(val) => Value::BooleanValue(val),
+            ValueType::Integer(val) => Value::IntegerValue(val),
+            ValueType::Double(val) => Value::DoubleValue(val),
+            ValueType::Timestamp(val) => {
                 Value::TimestampValue(NaiveDateTime::from_timestamp(val.seconds, val.nanos as u32))
             }
-            ValueType::KeyValue(key) => Value::KeyValue(Key::from(key)),
-            ValueType::StringValue(val) => Value::StringValue(val),
-            ValueType::BlobValue(val) => Value::BlobValue(val),
-            ValueType::GeoPointValue(val) => Value::GeoPointValue(val.latitude, val.longitude),
-            ValueType::EntityValue(entity) => Value::EntityValue({
+            ValueType::Key(key) => Value::KeyValue(Key::from(key)),
+            ValueType::String(val) => Value::StringValue(val),
+            ValueType::Blob(val) => Value::BlobValue(val),
+            ValueType::GeoPoint(val) => Value::GeoPointValue(val.latitude, val.longitude),
+            ValueType::Entity(entity) => Value::EntityValue({
                 entity
                     .properties
                     .into_iter()
                     .map(|(k, v)| (k, Value::from(v.value_type.unwrap())))
                     .collect()
             }),
-            ValueType::ArrayValue(seq) => Value::ArrayValue(
+            ValueType::Array(seq) => Value::ArrayValue(
                 seq.values
                     .into_iter()
                     .map(|val| Value::from(val.value_type.unwrap()))

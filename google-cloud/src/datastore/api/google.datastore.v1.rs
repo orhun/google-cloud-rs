@@ -128,51 +128,51 @@ pub mod value {
     pub enum ValueType {
         /// A null value.
         #[prost(enumeration = "::prost_types::NullValue", tag = "11")]
-        NullValue(i32),
+        Null(i32),
         /// A boolean value.
         #[prost(bool, tag = "1")]
-        BooleanValue(bool),
+        Boolean(bool),
         /// An integer value.
         #[prost(int64, tag = "2")]
-        IntegerValue(i64),
+        Integer(i64),
         /// A double value.
         #[prost(double, tag = "3")]
-        DoubleValue(f64),
+        Double(f64),
         /// A timestamp value.
         /// When stored in the Datastore, precise only to microseconds;
         /// any additional precision is rounded down.
         #[prost(message, tag = "10")]
-        TimestampValue(::prost_types::Timestamp),
+        Timestamp(::prost_types::Timestamp),
         /// A key value.
         #[prost(message, tag = "5")]
-        KeyValue(super::Key),
+        Key(super::Key),
         /// A UTF-8 encoded string value.
         /// When `exclude_from_indexes` is false (it is indexed) , may have at most
         /// 1500 bytes. Otherwise, may be set to at least 1,000,000 bytes.
         #[prost(string, tag = "17")]
-        StringValue(::prost::alloc::string::String),
+        String(::prost::alloc::string::String),
         /// A blob value.
         /// May have at most 1,000,000 bytes.
         /// When `exclude_from_indexes` is false, may have at most 1500 bytes.
         /// In JSON requests, must be base64-encoded.
         #[prost(bytes, tag = "18")]
-        BlobValue(::prost::alloc::vec::Vec<u8>),
+        Blob(::prost::alloc::vec::Vec<u8>),
         /// A geo point value representing a point on the surface of Earth.
         #[prost(message, tag = "8")]
-        GeoPointValue(super::super::super::r#type::LatLng),
+        GeoPoint(super::super::super::r#type::LatLng),
         /// An entity value.
         ///
         /// - May have no key.
         /// - May have a key with an incomplete key path.
         /// - May have a reserved/read-only key.
         #[prost(message, tag = "6")]
-        EntityValue(super::Entity),
+        Entity(super::Entity),
         /// An array value.
         /// Cannot contain another array value.
         /// A `Value` instance that sets field `array_value` must not set fields
         /// `meaning` or `exclude_from_indexes`.
         #[prost(message, tag = "9")]
-        ArrayValue(super::ArrayValue),
+        Array(super::ArrayValue),
     }
 }
 /// A Datastore data object.
@@ -571,7 +571,7 @@ pub mod run_query_request {
     pub enum QueryType {
         /// The query to run.
         #[prost(message, tag = "3")]
-        Query(super::Query),
+        Query(Box<super::Query>),
         /// The GQL query to run.
         #[prost(message, tag = "7")]
         GqlQuery(super::GqlQuery),

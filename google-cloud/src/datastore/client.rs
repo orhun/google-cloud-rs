@@ -268,9 +268,11 @@ impl Client {
             let request = api::RunQueryRequest {
                 partition_id: Some(api::PartitionId {
                     project_id: self.project_name.clone(),
-                    namespace_id: cur_query.namespace.unwrap_or_else(String::new),
+                    namespace_id: cur_query.namespace.unwrap_or_default(),
                 }),
-                query_type: Some(api::run_query_request::QueryType::Query(api_query)),
+                query_type: Some(api::run_query_request::QueryType::Query(Box::new(
+                    api_query,
+                ))),
                 read_options: Some({
                     use api::read_options::{ConsistencyType, ReadConsistency};
                     api::ReadOptions {
@@ -355,25 +357,25 @@ fn convert_entity(project_name: &str, entity: Entity) -> api::Entity {
 fn convert_value(project_name: &str, value: Value) -> api::Value {
     let mut exclude_from_indexes = false;
     let value_type = match value {
-        Value::BooleanValue(val) => ValueType::BooleanValue(val),
-        Value::IntegerValue(val) => ValueType::IntegerValue(val),
-        Value::DoubleValue(val) => ValueType::DoubleValue(val),
-        Value::TimestampValue(val) => ValueType::TimestampValue(prost_types::Timestamp {
+        Value::BooleanValue(val) => ValueType::Boolean(val),
+        Value::IntegerValue(val) => ValueType::Integer(val),
+        Value::DoubleValue(val) => ValueType::Double(val),
+        Value::TimestampValue(val) => ValueType::Timestamp(prost_types::Timestamp {
             seconds: val.timestamp(),
             nanos: val.timestamp_subsec_nanos() as i32,
         }),
-        Value::KeyValue(key) => ValueType::KeyValue(convert_key(project_name, &key)),
-        Value::StringValue(val) => ValueType::StringValue(val),
+        Value::KeyValue(key) => ValueType::Key(convert_key(project_name, &key)),
+        Value::StringValue(val) => ValueType::String(val),
         Value::IndexedValue(val, flag) => {
             exclude_from_indexes = !flag;
             convert_value(project_name, *val).value_type.unwrap() // cannot fail, return type is always Some(T)
         }
-        Value::BlobValue(val) => ValueType::BlobValue(val),
-        Value::GeoPointValue(latitude, longitude) => ValueType::GeoPointValue(api::LatLng {
+        Value::BlobValue(val) => ValueType::Blob(val),
+        Value::GeoPointValue(latitude, longitude) => ValueType::GeoPoint(api::LatLng {
             latitude,
             longitude,
         }),
-        Value::EntityValue(properties) => ValueType::EntityValue({
+        Value::EntityValue(properties) => ValueType::Entity({
             api::Entity {
                 key: None,
                 properties: properties
@@ -382,7 +384,7 @@ fn convert_value(project_name: &str, value: Value) -> api::Value {
                     .collect(),
             }
         }),
-        Value::ArrayValue(values) => ValueType::ArrayValue(api::ArrayValue {
+        Value::ArrayValue(values) => ValueType::Array(api::ArrayValue {
             values: values
                 .into_iter()
                 .map(|value| convert_value(project_name, value))
